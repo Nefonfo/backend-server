@@ -2,12 +2,24 @@
 // si se queda pegado killall node
 var express = require('express');
 var mongoose = require('mongoose');
-
+var bodyParser = require('body-parser');
 
 //Inicializar variables
 
 var app = express();
 
+// Body Parser
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+// parse application/json
+app.use(bodyParser.json());
+
+
+//Importar rutas
+
+var appRoutes = require('./routes/app');
+var usuarioRoutes = require('./routes/usuario');
+var loginRoutes = require('./routes/login');
 
 //Conexión a la base de datos
 
@@ -17,15 +29,11 @@ mongoose.connection.openUri('mongodb://localhost:27017/hospitalDB', (err, res) =
 });
 
 
-//Rutas
-app.get('/', (req, res, next) => {
-    // request, response, next
-    res.status(200).json({
-        ok: true,
-        mensaje: 'Peticion Se Realizo Correctamente'
-    });
+// Rutas
 
-});
+app.use('/usuario', usuarioRoutes);
+app.use('/', appRoutes);
+app.use('/login', loginRoutes);
 
 // Escuchar peticiones
 
