@@ -1,19 +1,22 @@
 var express = require('express');
 var bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
-var app = express();
+
 var SEED = require('../config/config').SEED;
+
+var app = express();
 var Usuario = require('../models/usuario');
 
 app.post('/', (req, res) => {
 
     var body = req.body;
+
     Usuario.findOne({ email: body.email }, (err, usuarioDB) => {
 
         if (err) {
             return res.status(500).json({
                 ok: false,
-                mensaje: 'Error al buscar Usuario',
+                mensaje: 'Error al buscar usuario',
                 errors: err
             });
         }
@@ -21,7 +24,7 @@ app.post('/', (req, res) => {
         if (!usuarioDB) {
             return res.status(400).json({
                 ok: false,
-                mensaje: 'Credenciales Incorrectas => email',
+                mensaje: 'Credenciales incorrectas - email',
                 errors: err
             });
         }
@@ -29,19 +32,15 @@ app.post('/', (req, res) => {
         if (!bcrypt.compareSync(body.password, usuarioDB.password)) {
             return res.status(400).json({
                 ok: false,
-                mensaje: 'Credenciales Incorrectas => password ',
+                mensaje: 'Credenciales incorrectas - password',
                 errors: err
             });
         }
 
-        // =================================================================
-        // CREAR TOKEN!!!
-        // =================================================================
+        // Crear un token!!!
         usuarioDB.password = ':)';
-        var token = jwt.sign({ usuario: usuarioDB }, SEED, { expiresIn: 14400 });
 
-
-
+        var token = jwt.sign({ usuario: usuarioDB }, SEED, { expiresIn: 14400 }); // 4 horas
 
         res.status(200).json({
             ok: true,
@@ -49,15 +48,11 @@ app.post('/', (req, res) => {
             token: token,
             id: usuarioDB._id
         });
-    });
+
+    })
 
 
 });
-
-
-
-
-
 
 
 
